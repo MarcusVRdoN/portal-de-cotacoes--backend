@@ -1,0 +1,855 @@
+{
+	"info": {
+		"_postman_id": "e9eb06e7-099d-42aa-9145-dfda8af99136",
+		"name": "Portal de Cotações API",
+		"description": "Coleção de APIs do Portal de Cotações",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "SignUp",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Maria da Silva\",\n  \"email\": \"maria.silva@pharmadist.com.br\",\n  \"password\": \"123456\",\n  \"userType\": \"SUPPLIER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"signup"
+							]
+						},
+						"description": "Criar novo usuário no sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "SignIn",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    const token = response?.data?.token;",
+									"",
+									"    if (token) {",
+									"        pm.collectionVariables.set(\"token\", token)",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"marcus.nascimento@rede.ulbra.br\",\n  \"password\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/signin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"signin"
+							]
+						},
+						"description": "Fazer login no sistema. O token retornado será automaticamente salvo na variável de ambiente."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Create Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productName\": \"Product 1\",\n  \"description\": \"Description 1\",\n  \"quantity\": 10\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Criar novo produto (requer permissão de admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Listar todos os produtos"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/products/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"1"
+							]
+						},
+						"description": "Buscar produto específico por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productName\": \"Product 1\",\n  \"description\": \"Description 1\",\n  \"quantity\": 26\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/16",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"16"
+							]
+						},
+						"description": "Atualizar produto (requer permissão de admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/products/16",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"products",
+								"16"
+							]
+						},
+						"description": "Deletar produto (requer permissão de admin)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"items\": [\n    {\n      \"id_produto\": 15,\n      \"quantidade\": 15,\n      \"valor_unitario\": 1.50\n    },\n    {\n      \"id_produto\": 8,\n      \"quantidade\": 30,\n      \"valor_unitario\": 7.50\n    },\n    {\n      \"id_produto\": 2,\n      \"quantidade\": 90,\n      \"valor_unitario\": 5.00\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders"
+							]
+						},
+						"description": "Criar novo pedido com itens"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/4",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"4"
+							]
+						},
+						"description": "Buscar pedido específico por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Orders",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders?limit=2&page=2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "page",
+									"value": "2"
+								}
+							]
+						},
+						"description": "Listar pedidos com paginação"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Order",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"valor_total\": 698.55\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"1"
+							]
+						},
+						"description": "Atualizar valor total do pedido"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order Report",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/report",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"report"
+							]
+						},
+						"description": "Obter relatório de pedidos"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Quotes",
+			"item": [
+				{
+					"name": "Create Quote",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"items\": [\n    {\n      \"id_produto\": 3,\n      \"quantidade\": 20\n    },\n    {\n      \"id_produto\": 7,\n      \"quantidade\": 5\n    },\n    {\n      \"id_produto\": 12,\n      \"quantidade\": 1\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/quotes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"quotes"
+							]
+						},
+						"description": "Criar nova cotação"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Quotes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/quotes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"quotes"
+							]
+						},
+						"description": "Listar todas as cotações"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Quote",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/quotes/6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"quotes",
+								"6"
+							]
+						},
+						"description": "Buscar cotação específica por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Quote Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"pendente\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/quotes/6/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"quotes",
+								"6",
+								"status"
+							]
+						},
+						"description": "Atualizar status da cotação"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Quote",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/quotes/6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"quotes",
+								"6"
+							]
+						},
+						"description": "Deletar cotação"
+					},
+					"response": []
+				},
+				{
+					"name": "Respond Quote",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"supplierId\": 3,\n  \"unitPrice\": 1599.99,\n  \"deliveryTime\": \"5 dias úteis\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/quotes/6/respond",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"quotes",
+								"6",
+								"respond"
+							]
+						},
+						"description": "Responder cotação (requer permissão de fornecedor)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Suppliers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/quotes/suppliers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"quotes",
+								"suppliers"
+							]
+						},
+						"description": "Listar fornecedores disponíveis"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Stock",
+			"item": [
+				{
+					"name": "Update Stock",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 5,\n  \"operation\": \"add\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/stock/products/15",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"stock",
+								"products",
+								"15"
+							]
+						},
+						"description": "Atualizar estoque do produto (requer permissão de admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Low Stock Report",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/stock/report/low?quantity=35",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"stock",
+								"report",
+								"low"
+							],
+							"query": [
+								{
+									"key": "quantity",
+									"value": "35"
+								}
+							]
+						},
+						"description": "Obter relatório de produtos com estoque baixo (requer permissão de admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Stock Report",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/stock/report",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"stock",
+								"report"
+							]
+						},
+						"description": "Obter relatório completo de estoque (requer permissão de admin)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users?limit=2&page=3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "page",
+									"value": "3"
+								}
+							]
+						},
+						"description": "Listar usuários com paginação (requer permissão de admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/5",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"5"
+							]
+						},
+						"description": "Buscar usuário específico por ID (requer permissão de admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Marcus Vinícius Ribeiro do Nascimento\",\n  \"email\": \"marcus.nascimento@rede.ulbra.br\",\n  \"password\": \"123456\",\n  \"type\": \"CLIENT\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/5",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"5"
+							]
+						},
+						"description": "Atualizar dados do usuário (requer permissão de admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/5",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"5"
+							]
+						},
+						"description": "Deletar usuário (requer permissão de admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"profile"
+							]
+						},
+						"description": "Obter perfil do usuário autenticado"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"password\": \"000\",\n  \"newPassword\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"profile"
+							]
+						},
+						"description": "Atualizar senha do perfil do usuário autenticado"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Users Report",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/report",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"report"
+							]
+						},
+						"description": "Obter relatório de usuários (requer permissão de admin)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:4000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

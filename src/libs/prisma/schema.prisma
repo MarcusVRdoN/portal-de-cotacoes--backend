@@ -1,0 +1,113 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  output        = "../../../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StatusCotacao {
+  PENDENTE
+  RESPONDIDA
+  CANCELADA
+  GANHA
+}
+
+enum TipoUsuario {
+  ADMIN
+  CLIENT
+  SUPPLIER
+}
+
+model Usuario {
+  id_usuario   Int         @id @default(autoincrement())
+  nome         String
+  email        String      @unique
+  senha        String
+  tipo_usuario TipoUsuario
+  cotacoes     Cotacao[]   @relation("ClienteCotacoes")
+  pedidos      Pedido[]    @relation("ClientePedidos")
+
+  @@map("usuarios")
+}
+
+model Fornecedor {
+  id_fornecedor Int               @id @default(autoincrement())
+  nome          String
+  contato       String
+  respostas     RespostaCotacao[]
+
+  @@map("fornecedores")
+}
+
+model Produto {
+  id_produto   Int           @id @default(autoincrement())
+  nome_produto String
+  descricao    String?
+  estoque      Int           @default(0)
+  itensPedido  ItemPedido[]
+  itensCotacao ItemCotacao[]
+
+  @@map("produtos")
+}
+
+model Cotacao {
+  id_cotacao       Int               @id @default(autoincrement())
+  data_solicitacao DateTime          @default(now())
+  status           StatusCotacao     @default(PENDENTE)
+  id_cliente       Int
+  cliente          Usuario           @relation("ClienteCotacoes", fields: [id_cliente], references: [id_usuario])
+  respostas        RespostaCotacao[]
+  itensCotacao     ItemCotacao[]
+
+  @@map("cotacoes")
+}
+
+model RespostaCotacao {
+  id_resposta    Int        @id @default(autoincrement())
+  id_cotacao     Int
+  id_fornecedor  Int
+  preco_unitario Float
+  prazo_entrega  String
+  cotacao        Cotacao    @relation(fields: [id_cotacao], references: [id_cotacao])
+  fornecedor     Fornecedor @relation(fields: [id_fornecedor], references: [id_fornecedor])
+
+  @@map("respostas_cotacao")
+}
+
+model ItemCotacao {
+  id_cotacao Int
+  id_produto Int
+  quantidade Int
+  cotacao    Cotacao @relation(fields: [id_cotacao], references: [id_cotacao])
+  produto    Produto @relation(fields: [id_produto], references: [id_produto])
+
+  @@id([id_cotacao, id_produto])
+  @@map("itens_cotacao")
+}
+
+model Pedido {
+  id_pedido   Int          @id @default(autoincrement())
+  data_pedido DateTime     @default(now())
+  valor_total Float
+  id_cliente  Int
+  cliente     Usuario      @relation("ClientePedidos", fields: [id_cliente], references: [id_usuario])
+  itens       ItemPedido[]
+
+  @@map("pedidos")
+}
+
+model ItemPedido {
+  id_item_pedido Int     @id @default(autoincrement())
+  id_pedido      Int
+  id_produto     Int
+  quantidade     Int
+  valor_unitario Float
+  pedido         Pedido  @relation(fields: [id_pedido], references: [id_pedido])
+  produto        Produto @relation(fields: [id_produto], references: [id_produto])
+
+  @@map("itens_pedido")
+}

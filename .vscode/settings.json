@@ -1,0 +1,29 @@
+{
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "editor.defaultFormatter": "vscode.typescript-language-features",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "cSpell.words": [
+    "cotacao",
+    "Cotacao",
+    "cotacoes",
+    "Cotacoes",
+    "descricao",
+    "Middyfied",
+    "postgres",
+    "postgresql",
+    "supabase",
+    "usuario",
+    "usuarios"
+  ]
+}

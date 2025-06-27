@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./",
+    "outDir": "./build",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "lib": [
+      "es2022"
+    ],
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+    }
+  },
+  "exclude": [
+    "node_modules/**/*",
+    ".serverless/**/*",
+    ".vscode/**/*",
+  ]
+}

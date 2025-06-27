@@ -1,0 +1,296 @@
+service: ${file(./package.json):name}
+frameworkVersion: '3'
+useDotenv: true
+
+plugins:
+  - serverless-esbuild
+  - serverless-offline
+
+package:
+  individually: true
+  patterns:
+    - '!**/*'
+    - 'node_modules/.prisma/**'
+    - 'node_modules/@prisma/client/**'
+    - '!node_modules/.prisma/client/libquery_engine-*'
+    - 'node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node'
+    - 'node_modules/.prisma/client/*.js'
+    - 'node_modules/.prisma/client/*.d.ts'
+    - 'node_modules/.prisma/client/schema.prisma'
+
+custom:
+  esbuild:
+    config: './esbuild.config.js'
+    packager: 'npm'
+    packagePath: './package.json'
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+  versionFunctions: false
+  timeout: 29
+  logRetentionInDays: 30
+  httpApi:
+    name: Portal de Cotações API (${self:provider.stage})
+    cors: true
+  tracing:
+    apiGateway: true
+    lambda: true
+  environment: 
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+    STAGE: ${self:provider.stage}
+    DATABASE_URL: ${env:DATABASE_URL}
+    POWERTOOLS_DEV: ${env:POWERTOOLS_DEV}
+    POWERTOOLS_LOGGER_LOG_EVENT: ${env:POWERTOOLS_LOGGER_LOG_EVENT}
+  iam:
+    role:
+      name: ${self:service}--${self:provider.stage}--lambdaRole
+      managedPolicies:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+functions:
+  # Auth
+  signUp:
+    handler: src/handlers/auth/index.signUp
+    name: ${self:service}--signUp--${self:provider.stage}
+    description: Registrar novo usuário
+    events:
+      - httpApi:
+          path: /auth/signup
+          method: post
+  signIn:
+    handler: src/handlers/auth/index.signIn
+    name: ${self:service}--signIn--${self:provider.stage}
+    description: Autenticar usuário
+    events:
+      - httpApi:
+          path: /auth/signin
+          method: post
+
+  # Orders
+  createOrder:
+    handler: src/handlers/orders/index.createOrder
+    name: ${self:service}--createOrder--${self:provider.stage}
+    description: Criar novo pedido
+    events:
+      - httpApi:
+          path: /orders
+          method: post
+  getOrders:
+    handler: src/handlers/orders/index.getOrders
+    name: ${self:service}--getOrders--${self:provider.stage}
+    description: Listar pedidos do usuário
+    events:
+      - httpApi:
+          path: /orders
+          method: get
+  getOrder:
+    handler: src/handlers/orders/index.getOrder
+    name: ${self:service}--getOrder--${self:provider.stage}
+    description: Buscar pedido por ID
+    events:
+      - httpApi:
+          path: /orders/{id}
+          method: get
+  updateOrder:
+    handler: src/handlers/orders/index.updateOrder
+    name: ${self:service}--updateOrder--${self:provider.stage}
+    description: Atualizar pedido
+    events:
+      - httpApi:
+          path: /orders/{id}
+          method: put
+  getOrdersReport:
+    handler: src/handlers/orders/index.getOrdersReport
+    name: ${self:service}--getOrdersReport--${self:provider.stage}
+    description: Relatório de pedidos (apenas admin)
+    events:
+      - httpApi:
+          path: /orders/report
+          method: get
+
+  # Quotes
+  createQuote:
+    handler: src/handlers/quotes/index.createQuote
+    name: ${self:service}--createQuote--${self:provider.stage}
+    description: Solicitar nova cotação
+    events:
+      - httpApi:
+          path: /quotes
+          method: post
+  getQuotes:
+    handler: src/handlers/quotes/index.getQuotes
+    name: ${self:service}--getQuotes--${self:provider.stage}
+    description: Listar cotações do usuário
+    events:
+      - httpApi:
+          path: /quotes
+          method: get
+  getQuote:
+    handler: src/handlers/quotes/index.getQuote
+    name: ${self:service}--getQuote--${self:provider.stage}
+    description: Buscar cotação por ID
+    events:
+      - httpApi:
+          path: /quotes/{id}
+          method: get
+  updateQuoteStatus:
+    handler: src/handlers/quotes/index.updateQuoteStatus
+    name: ${self:service}--updateQuoteStatus--${self:provider.stage}
+    description: Atualizar status da cotação
+    events:
+      - httpApi:
+          path: /quotes/{id}/status
+          method: put
+  respondQuote:
+    handler: src/handlers/quotes/index.respondQuote
+    name: ${self:service}--respondQuote--${self:provider.stage}
+    description: Responder cotação (fornecedor)
+    events:
+      - httpApi:
+          path: /quotes/{id}/respond
+          method: post
+  getSuppliers:
+    handler: src/handlers/quotes/index.getSuppliers
+    name: ${self:service}--getSuppliers--${self:provider.stage}
+    description: Listar fornecedores disponíveis
+    events:
+      - httpApi:
+          path: /quotes/suppliers
+          method: get
+  getQuotesReport:
+    handler: src/handlers/quotes/index.getQuotesReport
+    name: ${self:service}--getQuotesReport--${self:provider.stage}
+    description: Relatório de cotações (apenas admin)
+    events:
+      - httpApi:
+          path: /quotes/report
+          method: get
+
+  # Products
+  createProduct:
+    handler: src/handlers/products/index.createProduct
+    name: ${self:service}--createProduct--${self:provider.stage}
+    description: Criar novo produto (apenas admin)
+    events:
+      - httpApi:
+          path: /products
+          method: post
+  getProducts:
+    handler: src/handlers/products/index.getProducts
+    name: ${self:service}--getProducts--${self:provider.stage}
+    description: Listar todos os produtos
+    events:
+      - httpApi:
+          path: /products
+          method: get
+  getProduct:
+    handler: src/handlers/products/index.getProduct
+    name: ${self:service}--getProduct--${self:provider.stage}
+    description: Buscar produto por ID
+    events:
+      - httpApi:
+          path: /products/{id}
+          method: get
+  updateProduct:
+    handler: src/handlers/products/index.updateProduct
+    name: ${self:service}--updateProduct--${self:provider.stage}
+    description: Atualizar produto (apenas admin)
+    events:
+      - httpApi:
+          path: /products/{id}
+          method: put
+  deleteProduct:
+    handler: src/handlers/products/index.deleteProduct
+    name: ${self:service}--deleteProduct--${self:provider.stage}
+    description: Deletar produto (apenas admin)
+    events:
+      - httpApi:
+          path: /products/{id}
+          method: delete
+
+  # Stock
+  updateStock:
+    handler: src/handlers/stock/index.updateStock
+    name: ${self:service}--updateStock--${self:provider.stage}
+    description: Atualizar estoque (apenas admin)
+    events:
+      - httpApi:
+          path: /stock/products/{id}
+          method: put
+  getLowStockReport:
+    handler: src/handlers/stock/index.getLowStockReport
+    name: ${self:service}--getLowStockReport--${self:provider.stage}
+    description: Relatório de estoque baixo (apenas admin)
+    events:
+      - httpApi:
+          path: /stock/report/low
+          method: get
+  getStockReport:
+    handler: src/handlers/stock/index.getStockReport
+    name: ${self:service}--getStockReport--${self:provider.stage}
+    description: Relatório geral de estoque (apenas admin)
+    events:
+      - httpApi:
+          path: /stock/report
+          method: get
+
+  # Users
+  getUsers:
+    handler: src/handlers/users/index.getUsers
+    name: ${self:service}--getUsers--${self:provider.stage}
+    description: Listar todos os usuários (admin)
+    events:
+      - httpApi:
+          path: /users
+          method: get
+  getUser:
+    handler: src/handlers/users/index.getUser
+    name: ${self:service}--getUser--${self:provider.stage}
+    description: Buscar usuário por ID (admin)
+    events:
+      - httpApi:
+          path: /users/{id}
+          method: get
+  updateUser:
+    handler: src/handlers/users/index.updateUser
+    name: ${self:service}--updateUser--${self:provider.stage}
+    description: Atualizar usuário (admin)
+    events:
+      - httpApi:
+          path: /users/{id}
+          method: put
+  deleteUser:
+    handler: src/handlers/users/index.deleteUser
+    name: ${self:service}--deleteUser--${self:provider.stage}
+    description: Deletar usuário (admin)
+    events:
+      - httpApi:
+          path: /users/{id}
+          method: delete
+  getUserProfile:
+    handler: src/handlers/users/index.getUserProfile
+    name: ${self:service}--getUserProfile--${self:provider.stage}
+    description: Buscar perfil do usuário logado
+    events:
+      - httpApi:
+          path: /users/profile
+          method: get
+  updateUserProfile:
+    handler: src/handlers/users/index.updateUserProfile
+    name: ${self:service}--updateUserProfile--${self:provider.stage}
+    description: Atualizar perfil do usuário logado
+    events:
+      - httpApi:
+          path: /users/profile
+          method: put
+  getUsersReport:
+    handler: src/handlers/users/index.getUsersReport
+    name: ${self:service}--getUsersReport--${self:provider.stage}
+    description: Relatório de usuários (admin)
+    events:
+      - httpApi:
+          path: /users/report
+          method: get

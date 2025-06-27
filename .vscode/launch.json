@@ -1,0 +1,26 @@
+{
+  "version": "0.1.0",
+  "configurations": [
+    {
+      "name": "Debug Serverless Function",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "ts-node",
+        "--require",
+        "tsconfig-paths/register"
+      ],
+      "args": [
+        "${file}"
+      ],
+      "internalConsoleOptions": "openOnSessionStart",
+      "skipFiles": [
+        "<node_internals>/**",
+        "node_modules/**"
+      ],
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
