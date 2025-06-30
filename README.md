@@ -1,223 +1,551 @@
-# 💼 Portal de Cotações
+# 🏥 Portal de Cotações - Backend API
 
-Sistema de gerenciamento de cotações e pedidos desenvolvido para facilitar a comunicação entre clientes e fornecedores.
+Uma API robusta e escalável para gestão de cotações de produtos médicos e hospitalares, desenvolvida com arquitetura serverless na AWS usando Node.js, TypeScript e Prisma ORM.
 
 ## 📋 Sobre o Projeto
 
-O Portal de Cotações é uma plataforma web que conecta clientes que precisam de produtos com fornecedores que podem atendê-los. O sistema permite:
+O Portal de Cotações é um sistema completo que conecta clientes que necessitam de produtos médicos e hospitalares com fornecedores especializados. O backend fornece uma API RESTful segura e eficiente que gerencia todo o fluxo desde a solicitação de cotações até a finalização de pedidos.
 
-- **Clientes** podem solicitar cotações especificando produtos e quantidades
-- **Fornecedores** respondem com preços e prazos de entrega
-- **Administradores** gerenciam todo o sistema e controlam estoques
-- Processo completo desde a cotação até o pedido final
+### 🎯 Objetivos
+- Facilitar o processo de cotações entre clientes e fornecedores
+- Centralizar a gestão de produtos médicos e hospitalares
+- Automatizar o controle de estoque e pedidos
+- Proporcionar uma API escalável e performática na nuvem
 
-## 🎯 Funcionalidades Principais
+### 🏗️ Arquitetura
+- **Serverless**: Deploy na AWS Lambda com API Gateway
+- **Database**: PostgreSQL hospedado no Neon
+- **ORM**: Prisma para tipagem e queries seguras
+- **Autenticação**: JWT com middleware de autorização
+- **Cloud**: Infraestrutura como código via Serverless Framework
 
-### Para Clientes
-- ✅ Fazer login no sistema
-- ✅ Solicitar cotações de produtos
-- ✅ Consultar status das cotações
-- ✅ Realizar pedidos baseados nas respostas
-
-### Para Fornecedores  
-- ✅ Fazer login no sistema
-- ✅ Visualizar solicitações de cotação
-- ✅ Responder cotações com preços e prazos
-
-### Para Administradores
-- ✅ Cadastrar novos usuários
-- ✅ Gerenciar produtos e estoque
-- ✅ Acompanhar todo o processo
-- ✅ Gerar relatórios do sistema
-
-## 🛠️ Tecnologias Utilizadas
-
-### Backend (Servidor)
-- **Node.js** - Plataforma de desenvolvimento
-- **TypeScript** - Linguagem de programação
-- **Express** - Framework web
-- **PostgreSQL** - Banco de dados
-- **Prisma** - Para conectar com o banco
-- **JWT** - Segurança e autenticação
-
-### Ferramentas de Desenvolvimento
-- **Visual Studio Code** - Editor de código
-- **Git & GitHub** - Controle de versão
-- **Prisma Studio** - Visualizar banco de dados
-
-## 📦 Como Instalar e Executar
+## 🚀 Configuração e Instalação
 
 ### Pré-requisitos
-Você precisa ter instalado:
-- Node.js (versão 16 ou mais recente)
-- PostgreSQL (banco de dados)
-- Git
+- **Node.js** 16+ ou superior
+- **npm** ou **yarn**
+- **Git** para controle de versão
+- **AWS CLI** configurado (para deploy)
+- Conta no **Neon** (banco PostgreSQL)
 
-### Passo a Passo
+### 1. Clone do Repositório
 
-1. **Baixar o projeto**
 ```bash
-git clone https://github.com/seu-usuario/portal-cotacoes-backend.git
-cd portal-cotacoes-backend
+git clone https://github.com/MarcusVRdoN/portal-de-cotacoes--backend.git
+cd portal-de-cotacoes--backend
 ```
 
-2. **Instalar dependências**
+### 2. Instalação das Dependências
+
 ```bash
 npm install
 ```
 
-3. **Configurar banco de dados**
-Crie um arquivo `.env` com suas configurações:
+### 3. Configuração do Ambiente
+
+Crie o arquivo `.env` na raiz do projeto:
+
 ```env
-DATABASE_URL="postgresql://usuario:senha@localhost:5432/portal_cotacoes"
-JWT_SECRET="sua-chave-secreta"
-PORT=4000
+# Database Connection (Neon PostgreSQL)
+DATABASE_URL=postgresql://admin:npg_7ZPRvlcWSdI6@ep-raspy-flower-a5hew2xr-pooler.us-east-2.aws.neon.tech/portal?sslmode=require&channel_binding=require
+
+# JWT Secret (gere uma chave segura para produção)
+JWT_SECRET=9d27eba302a36d447bb6af84f288e9b5220132fb03da731f30ed951b4a95495611fd43a6cf188889d57b7bbdafce470555facd52baa1ae7b6ae055bc251d48da
+
+# AWS PowerTools (desenvolvimento)
+POWERTOOLS_DEV=true
+POWERTOOLS_LOGGER_LOG_EVENT=false
 ```
 
-4. **Preparar banco de dados**
+### 4. Configuração do Banco de Dados
+
 ```bash
-npx prisma db push
-npm run prisma:seed
+# Gerar cliente Prisma
+npm run prisma:generate
+
+# Aplicar migrações (se houver)
+npx prisma db push --schema=./src/libs/prisma/schema.prisma
+
+# Popular banco com dados de teste
+npx prisma db seed
 ```
 
-5. **Iniciar o servidor**
+### 5. Execução Local
+
 ```bash
+# Desenvolvimento local
 npm run dev
+
+# O servidor estará disponível em http://localhost:4000
 ```
 
-O sistema estará rodando em: `http://localhost:4000`
+### 6. Visualizar Banco de Dados
 
-## 🌐 Como Usar a API
-
-### Fazer Login
 ```bash
-curl -X POST http://localhost:4000/api/auth/signin \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@portal.com","senha":"123456"}'
+# Abrir Prisma Studio
+npm run database:preview
 ```
 
-### Listar Produtos  
-```bash
-curl -X GET http://localhost:4000/api/stock/products \
-  -H "Authorization: Bearer SEU_TOKEN"
-```
+## 🌐 API Endpoints
 
-### Solicitar Cotação
-```bash
-curl -X POST http://localhost:4000/api/quotes \
-  -H "Authorization: Bearer SEU_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"observacoes":"Preciso de parafusos"}'
-```
+### 🔐 Autenticação
 
-## 👥 Usuários de Teste
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| `POST` | `/auth/signup` | Cadastrar novo usuário | ❌ |
+| `POST` | `/auth/signin` | Login com email/senha | ❌ |
 
-O sistema já vem com usuários pré-cadastrados para teste:
+### 👥 Usuários
 
-| Email | Senha | Tipo | O que pode fazer |
-|-------|-------|------|------------------|
-| `admin@portal.com` | `123456` | Admin | Tudo no sistema |
-| `joao.cliente@email.com` | `123456` | Cliente | Solicitar cotações e pedidos |
-| `maria.cliente@email.com` | `123456` | Cliente | Solicitar cotações e pedidos |
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| `GET` | `/users` | Listar usuários (Admin) | ✅ |
+| `GET` | `/users/{id}` | Buscar usuário por ID | ✅ |
+| `PUT` | `/users/{id}` | Atualizar usuário (Admin) | ✅ |
+| `DELETE` | `/users/{id}` | Excluir usuário (Admin) | ✅ |
+| `GET` | `/users/profile` | Perfil do usuário logado | ✅ |
+| `PUT` | `/users/profile` | Atualizar perfil próprio | ✅ |
+| `GET` | `/users/report` | Relatório de usuários | ✅ |
 
-## 📊 Estrutura do Banco de Dados
+### 🛍️ Produtos
 
-O sistema possui as seguintes tabelas principais:
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| `POST` | `/products` | Cadastrar produto (Admin) | ✅ |
+| `GET` | `/products` | Listar produtos | ✅ |
+| `GET` | `/products/{id}` | Buscar produto por ID | ✅ |
+| `PUT` | `/products/{id}` | Atualizar produto (Admin) | ✅ |
+| `DELETE` | `/products/{id}` | Excluir produto (Admin) | ✅ |
 
-- **usuarios** - Dados dos usuários (clientes, fornecedores, admin)
-- **fornecedores** - Informações das empresas fornecedoras
-- **produtos** - Catálogo de produtos disponíveis  
-- **cotacoes** - Solicitações feitas pelos clientes
-- **respostas_cotacao** - Respostas dos fornecedores
-- **pedidos** - Pedidos finalizados
-- **itens_pedido** - Produtos específicos de cada pedido
+### 📋 Cotações
 
-## 🔐 Segurança
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| `POST` | `/quotes` | Solicitar cotação (Cliente) | ✅ |
+| `GET` | `/quotes` | Listar cotações | ✅ |
+| `GET` | `/quotes/{id}` | Buscar cotação por ID | ✅ |
+| `PUT` | `/quotes/{id}/status` | Atualizar status da cotação | ✅ |
+| `POST` | `/quotes/{id}/respond` | Responder cotação (Fornecedor) | ✅ |
+| `GET` | `/quotes/suppliers` | Listar fornecedores | ✅ |
+| `GET` | `/quotes/report` | Relatório de cotações | ✅ |
 
-- Todas as senhas são criptografadas
-- Sistema usa tokens JWT para autenticação
-- Controle de permissões por tipo de usuário
-- Validação de dados em todas as operações
+### 🛒 Pedidos
 
-## 📱 Principais Rotas da API
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| `POST` | `/orders` | Criar pedido (Cliente) | ✅ |
+| `GET` | `/orders` | Listar pedidos | ✅ |
+| `GET` | `/orders/{id}` | Buscar pedido por ID | ✅ |
+| `PUT` | `/orders/{id}` | Atualizar pedido | ✅ |
+| `GET` | `/orders/report` | Relatório de pedidos | ✅ |
 
-| Rota | Método | Descrição |
-|------|--------|-----------|
-| `/api/auth/signin` | POST | Fazer login |
-| `/api/quotes` | GET | Listar cotações |
-| `/api/quotes` | POST | Solicitar cotação |
-| `/api/orders` | GET | Listar pedidos |
-| `/api/orders` | POST | Criar pedido |
-| `/api/stock/products` | GET | Listar produtos |
+### 📦 Estoque
 
-## 🚀 Verificar se está Funcionando
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| `PUT` | `/stock/products/{id}` | Atualizar estoque (Admin) | ✅ |
+| `GET` | `/stock/report/low` | Produtos com estoque baixo | ✅ |
+| `GET` | `/stock/report` | Relatório geral de estoque | ✅ |
 
-Teste se o sistema está rodando:
-```bash
-curl http://localhost:4000/api/health
-```
+## 🔑 Autenticação e Autorização
 
-Deve retornar:
-```json
-{
-  "status": "ok",
-  "message": "Portal de Cotações API está funcionando"
+### Sistema de Tipos de Usuário
+
+```typescript
+enum TipoUsuario {
+  ADMIN    // Acesso completo ao sistema
+  CLIENT   // Pode solicitar cotações e fazer pedidos
+  SUPPLIER // Pode responder cotações
 }
 ```
 
-## 📂 Organização do Código
+### Fluxo de Autenticação
 
-```
-portal-cotacoes-backend/
-├── src/
-│   ├── controllers/     # Lógica do sistema
-│   ├── routes/         # Rotas da API  
-│   ├── middleware/     # Segurança
-│   └── app.ts         # Configuração principal
-├── prisma/
-│   ├── schema.prisma  # Estrutura do banco
-│   └── seed.ts       # Dados de exemplo
-└── README.md         # Este arquivo
+1. **Login**: `POST /auth/signin`
+2. **Token JWT**: Retornado no response
+3. **Header**: `Authorization: Bearer {token}`
+4. **Validação**: Middleware verifica token em cada request
+
+### Usuários de Teste
+
+| Email | Senha | Tipo | Permissões |
+|-------|-------|------|------------|
+| `admin@portal.com` | `123456` | **ADMIN** | Acesso completo ao sistema |
+| `marcus.nascimento@rede.ulbra.br` | `123456` | **CLIENT** | Solicitar cotações e pedidos |
+| `maria.silva@pharmadist.com.br` | `123456` | **SUPPLIER** | Responder cotações |
+
+## 🗄️ Estrutura do Banco de Dados
+
+### Principais Entidades
+
+```sql
+-- Usuários do sistema
+usuarios (
+  id_usuario SERIAL PRIMARY KEY,
+  nome VARCHAR NOT NULL,
+  email VARCHAR UNIQUE NOT NULL,
+  senha VARCHAR NOT NULL,
+  tipo_usuario ENUM('ADMIN', 'CLIENT', 'SUPPLIER')
+)
+
+-- Fornecedores registrados
+fornecedores (
+  id_fornecedor SERIAL PRIMARY KEY,
+  nome VARCHAR NOT NULL,
+  contato VARCHAR NOT NULL
+)
+
+-- Catálogo de produtos
+produtos (
+  id_produto SERIAL PRIMARY KEY,
+  nome_produto VARCHAR NOT NULL,
+  descricao TEXT,
+  estoque INTEGER DEFAULT 0
+)
+
+-- Solicitações de cotação
+cotacoes (
+  id_cotacao SERIAL PRIMARY KEY,
+  data_solicitacao TIMESTAMP DEFAULT NOW(),
+  status ENUM('PENDENTE', 'RESPONDIDA', 'CANCELADA', 'GANHA'),
+  id_cliente INTEGER REFERENCES usuarios(id_usuario)
+)
+
+-- Respostas dos fornecedores
+respostas_cotacao (
+  id_resposta SERIAL PRIMARY KEY,
+  id_cotacao INTEGER REFERENCES cotacoes(id_cotacao),
+  id_fornecedor INTEGER REFERENCES fornecedores(id_fornecedor),
+  preco_unitario DECIMAL NOT NULL,
+  prazo_entrega VARCHAR NOT NULL
+)
+
+-- Pedidos finalizados
+pedidos (
+  id_pedido SERIAL PRIMARY KEY,
+  data_pedido TIMESTAMP DEFAULT NOW(),
+  valor_total DECIMAL NOT NULL,
+  id_cliente INTEGER REFERENCES usuarios(id_usuario)
+)
 ```
 
-## 🔧 Comandos Úteis
+### Relacionamentos
+
+- **1:N** - Usuario → Cotacoes (cliente)
+- **1:N** - Usuario → Pedidos (cliente)
+- **1:N** - Cotacao → RespostaCotacao
+- **1:N** - Fornecedor → RespostaCotacao
+- **1:N** - Pedido → ItemPedido
+- **N:M** - Cotacao ↔ Produto (via ItemCotacao)
+- **N:M** - Pedido ↔ Produto (via ItemPedido)
+
+## 🛠️ Tecnologias e Dependências
+
+### Core Dependencies
+
+```json
+{
+  "@prisma/client": "^6.10.1",        // ORM para PostgreSQL
+  "jsonwebtoken": "^9.0.2",           // Autenticação JWT
+  "@aws-lambda-powertools/logger": "^2.22.0", // Logging estruturado
+  "@middy/core": "^5.5.1"             // Middleware para Lambda
+}
+```
+
+### Development Tools
+
+```json
+{
+  "typescript": "^5.8.3",             // Linguagem principal
+  "prisma": "^6.10.1",                // CLI do Prisma
+  "serverless": "^3.40.0",            // Framework serverless
+  "serverless-esbuild": "^1.55.1",    // Bundler otimizado
+  "serverless-offline": "^13.9.0",    // Desenvolvimento local
+  "esbuild": "^0.25.5"                // Compilador ultra-rápido
+}
+```
+
+### Arquitetura Serverless
+
+- **Runtime**: Node.js 18+
+- **Bundler**: esbuild (compilação rápida)
+- **Binary Targets**: Native + RHEL OpenSSL 3.0.x (AWS Lambda)
+- **Memory**: 1024MB por função Lambda
+- **Timeout**: 30 segundos
+
+## 📊 Exemplos de Uso da API
+
+### 1. Fazer Login
 
 ```bash
-# Iniciar desenvolvimento
-npm run dev
-
-# Ver banco de dados  
-npx prisma studio
-
-# Recriar dados de exemplo
-npm run prisma:seed
-
-# Verificar saúde da API
-curl http://localhost:4000/api/health
+curl -X POST https://2kb8y5mqe6.execute-api.us-east-1.amazonaws.com/auth/signin \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@portal.com",
+    "password": "123456"
+  }'
 ```
 
-## 🎯 Próximos Passos
+**Response:**
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id_usuario": 1,
+    "nome": "Administrador",
+    "email": "admin@portal.com",
+    "tipo_usuario": "ADMIN"
+  }
+}
+```
 
-1. **Frontend** - Criar interface web para os usuários
-2. **Melhorias** - Adicionar mais funcionalidades
-3. **Deploy** - Publicar em servidor na nuvem
-4. **Testes** - Adicionar testes automatizados
+### 2. Criar Produto (Admin)
 
-## 🤝 Como Contribuir
+```bash
+curl -X POST https://2kb8y5mqe6.execute-api.us-east-1.amazonaws.com/products \
+  -H "Authorization: Bearer TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "productName": "Seringa 10ml",
+    "description": "Seringa descartável estéril 10ml",
+    "quantity": 1000
+  }'
+```
 
-1. Faça um fork do projeto
-2. Crie uma branch para sua funcionalidade
-3. Faça suas alterações
-4. Teste tudo
-5. Envie um pull request
+### 3. Solicitar Cotação (Cliente)
 
-## 📞 Suporte
+```bash
+curl -X POST https://2kb8y5mqe6.execute-api.us-east-1.amazonaws.com/quotes \
+  -H "Authorization: Bearer TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [
+      {
+        "id_produto": 1,
+        "quantidade": 50
+      },
+      {
+        "id_produto": 3,
+        "quantidade": 20
+      }
+    ]
+  }'
+```
 
-Se precisar de ajuda:
-- Abra uma issue no GitHub
-- Verifique a documentação da API
-- Teste com os usuários de exemplo
+### 4. Responder Cotação (Fornecedor)
+
+```bash
+curl -X POST https://2kb8y5mqe6.execute-api.us-east-1.amazonaws.com/quotes/1/respond \
+  -H "Authorization: Bearer TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "supplierId": 1,
+    "unitPrice": 2.50,
+    "deliveryTime": "5 dias úteis"
+  }'
+```
+
+### 5. Criar Pedido (Cliente)
+
+```bash
+curl -X POST https://2kb8y5mqe6.execute-api.us-east-1.amazonaws.com/orders \
+  -H "Authorization: Bearer TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [
+      {
+        "id_produto": 1,
+        "quantidade": 30,
+        "valor_unitario": 2.50
+      }
+    ]
+  }'
+```
+
+## 🚀 Deploy e Produção
+
+### Deploy na AWS
+
+```bash
+# Deploy ambiente de desenvolvimento
+npm run deploy
+
+# Deploy ambiente de produção
+npm run deploy:prod
+```
+
+### URLs de Produção
+
+**Base URL**: `https://2kb8y5mqe6.execute-api.us-east-1.amazonaws.com`
+
+### Monitoramento
+
+- **CloudWatch**: Logs e métricas das funções Lambda
+- **AWS X-Ray**: Tracing distribuído (se habilitado)
+- **Prisma Studio**: Visualização do banco de dados
+
+### Variáveis de Ambiente (Produção)
+
+```env
+DATABASE_URL=postgresql://user:pass@prod-db.neon.tech/portal
+JWT_SECRET=chave-super-secreta-de-producao
+NODE_ENV=production
+```
+
+## 🔧 Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+npm run dev              # Servidor local com hot reload
+npm run build           # Verificar compilação TypeScript
+
+# Deploy
+npm run deploy          # Deploy dev na AWS
+npm run deploy:prod     # Deploy produção na AWS
+
+# Banco de Dados
+npm run database:preview      # Abrir Prisma Studio
+npm run prisma:generate      # Gerar cliente Prisma
+
+# Limpeza
+npm run clean           # Limpar arquivos de build
+npm run clean:all       # Limpeza completa + reinstalar deps
+```
+
+## 🔍 Casos de Uso Implementados
+
+### Para Clientes
+1. **Realizar Login** - Autenticação segura no sistema
+2. **Solicitar Cotação** - Especificar produtos e quantidades desejadas
+3. **Consultar Cotação** - Acompanhar status e respostas recebidas
+4. **Realizar Pedido** - Finalizar compra baseada nas cotações
+
+### Para Fornecedores
+1. **Realizar Login** - Acesso ao painel de fornecedor
+2. **Visualizar Cotações** - Ver solicitações recebidas
+3. **Responder Cotação** - Informar preços e prazos de entrega
+
+### Para Administradores
+1. **Cadastrar Usuário** - Registrar clientes e fornecedores
+2. **Gerenciar Produtos** - CRUD completo do catálogo
+3. **Gerenciar Estoque** - Controle de entradas e saídas
+4. **Gerar Relatórios** - Dashboards e métricas do sistema
+
+## 📈 Performance e Escalabilidade
+
+### Otimizações Implementadas
+
+- **Serverless**: Auto-scaling baseado na demanda
+- **Connection Pooling**: Gerenciamento eficiente de conexões DB
+- **Prisma**: Queries otimizadas e type-safe
+- **esbuild**: Bundling ultra-rápido
+- **Binary Targets**: Otimização para AWS Lambda
+
+### Métricas de Performance
+
+- **Cold Start**: ~2-3 segundos
+- **Warm Response**: ~100-300ms
+- **Database Latency**: ~50-100ms (Neon us-east-2)
+- **Memory Usage**: ~100-200MB por função
+
+## 🧪 Testes e Desenvolvimento
+
+### Testando Endpoints Localmente
+
+Use os arquivos `.http` na pasta raiz:
+
+- `auth.http` - Testes de autenticação
+- `users.http` - Operações de usuários
+- `products.http` - Gestão de produtos
+- `quotes.http` - Cotações e respostas
+- `orders.http` - Pedidos e itens
+- `stock.http` - Controle de estoque
+
+### Executando com VS Code REST Client
+
+1. Instale a extensão "REST Client"
+2. Abra qualquer arquivo `.http`
+3. Clique em "Send Request" acima de cada endpoint
+
+### Ambiente de Desenvolvimento
+
+```bash
+# Terminal 1: API local
+npm run dev
+
+# Terminal 2: Prisma Studio
+npm run database:preview
+
+# Terminal 3: Logs em tempo real
+npx sls logs -f signIn --tail
+```
+
+## 🐛 Troubleshooting
+
+### Problemas Comuns
+
+#### ❌ Erro de Conexão com Banco
+
+```bash
+# Verificar URL de conexão
+echo $DATABASE_URL
+
+# Testar conexão
+npx prisma db push --schema=./src/libs/prisma/schema.prisma
+```
+
+#### ❌ Erro de Compilação TypeScript
+
+```bash
+# Limpar e reinstalar
+npm run clean:all
+
+# Verificar tipagens
+npm run build
+```
+
+#### ❌ Erro de Deploy AWS
+
+```bash
+# Verificar credenciais AWS
+aws sts get-caller-identity
+
+# Limpar deploy anterior
+rm -rf .serverless
+npm run deploy
+```
+
+#### ❌ Token JWT Inválido
+
+```bash
+# Verificar secret no .env
+echo $JWT_SECRET
+
+# Fazer novo login
+curl -X POST localhost:4000/auth/signin \
+  -d '{"email":"admin@portal.com","password":"123456"}'
+```
+
+## 📞 Suporte e Contato
+
+### Desenvolvedor
+**Marcus Vinícius Ribeiro do Nascimento**
+- 📧 Email: marcus.nascimento@rede.ulbra.br
+- 🎓 Universidade: ULBRA - Educação a Distância
+- 📚 Curso: Tecnologia em Análise e Desenvolvimento de Sistemas
+
+### Projeto Acadêmico
+Este projeto foi desenvolvido como trabalho de conclusão da disciplina **Projeto Tecnológico em Desenvolvimento de Sistemas** da Universidade Luterana do Brasil (ULBRA).
+
+### Recursos Adicionais
+- 📖 [Documentação do Prisma](https://www.prisma.io/docs/)
+- 🌐 [Serverless Framework](https://www.serverless.com/framework/docs)
+- ☁️ [AWS Lambda Docs](https://docs.aws.amazon.com/lambda/)
+- 🐘 [PostgreSQL Docs](https://www.postgresql.org/docs/)
 
 ---
 
-**Portal de Cotações - Conectando clientes e fornecedores de forma simples e eficiente** 🚀
+## 📄 Licença
+
+Este projeto é desenvolvido para fins acadêmicos como parte do curso de Tecnologia em Análise e Desenvolvimento de Sistemas da ULBRA.
